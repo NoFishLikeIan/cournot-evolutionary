@@ -14,14 +14,11 @@ include("stability.jl")
 
 b = 1
 Σ′(N) = (N + 1) * mean(Σ) * maximum(Σ) # Maximum profits
-p(Q, N) = (N + 1) * mean(Σ) - b * sum(Q)
+p(Q) = (length(Q) + 1) * mean(Σ) - b * sum(Q) # Price
+Π(Q) = Q .* p(Q) # Profit
 
+# FIXME: Fix the cost function
 
-function Π(Q)
-    N = length(Q)
-    price = p(Q, N)
-    return Q .* price
-end
 
 function computepayoffs(groups)
     M, N = size(groups)

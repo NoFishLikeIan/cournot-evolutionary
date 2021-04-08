@@ -24,5 +24,6 @@ docs/site/
 Manifest.toml
 
 # project specific
-
 plots/
+.vscode
+sysimage
