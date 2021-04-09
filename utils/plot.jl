@@ -15,56 +15,32 @@ function plotpayoffs(evolutions, computepayoffs, title; filename="payoff_heat")
         clim=(-limit, limit),
         title=title, xaxis="time", dpi=200)
 
-    savefig("plots/group/$filename.png")
+    savefig("plots/$filename.png")
     
 end
 
-function plotquantities(evolutions, coalitions, title; filename="q_heat")
+function plotquantities(evolutions, title; filename="q_heat")
     M, N, T = size(evolutions)
 
-    uniquecoals = unique(x -> Set(x[2]), coalitions)
-    windows = [
-        ((1, uniquecoals[1][1]), [[m] for m in 1:M])
-    ]
-
-    for i in 1:(length(uniquecoals) - 1)
-        l, coals = uniquecoals[i]
-        r = uniquecoals[i + 1][1]
-
-        push!(windows, ((l, r), coals))
-    end
-
-    push!(windows, ((uniquecoals[end][1], T), uniquecoals[end][2]))
-
-    qs = reshape(mean(evolutions, dims=2), (M, T))
-
-    plot(title=title, xaxis="time", dpi=200, yaxs="mean q within group")
-
-    for (window, coal) in windows
-        from, to = window
-
-        for (i, c) in enumerate(coal)
-            plot!(
-                from:to, qs[c, from:to]', label=false,
-                linewidth=2, 
-                c=palette(:tab20)[((i * 2) % 20) + 1]
-            )
-        end
-    end
-
-    savefig("plots/group/$filename.png")
-
 end
 
-function plotgroupquantities(group, title; filename="q_group_heat")
-    N, T = size(group)
+function plotgroupquantities(
+    group, title; 
+    filename="q_group_heat")
     
-    ts = ["T$t" for t in 1:T]
-    firms = ["F$m" for m in 1:N]
+    N, T = size(group)
+    equil = q̄(N)
+    u = maximum(Σ(N))
 
-    heatmap(1:T, firms, group, title=title, xaxis="time", dpi=200, c=:plasma)
+    gradient = cgrad(:balance, [0., equil / u, 1.])
 
-    savefig("plots/local/$filename.png")
+    heatmap(
+        group,
+        c=gradient, clims=(0., u),
+        xaxis="t",
+        dpi=200, title=title)
+
+    savefig("plots/$filename.png")
 end
 
 function plotgroupprices(groups, p, title; filename="p_group")
@@ -84,5 +60,5 @@ function plotgroupprices(groups, p, title; filename="p_group")
 
     plot!(1:T, mean(prices, dims=1)', c="red", label="mean(p(Q))", dpi=200)
 
-    savefig("plots/local/$filename.png")
+    savefig("plots/$filename.png")
 end

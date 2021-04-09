@@ -4,21 +4,11 @@ using Statistics
 using IterTools
 using Plots
 
-Random.seed!(1122)
+Random.seed!(11148705)
 
-include("utils/plot.jl")
+include("cournot.jl")
 include("utils/coord.jl")
-include("stability.jl")
-
-Σ = collect(1:10) 
-
-b = 1
-Σ′(N) = (N + 1) * mean(Σ) * maximum(Σ) # Maximum profits
-p(Q) = (length(Q) + 1) * mean(Σ) - b * sum(Q) # Price
-Π(Q) = Q .* p(Q) # Profit
-
-# FIXME: Fix the cost function
-
+include("utils/plot.jl")
 
 function computepayoffs(groups)
     M, N = size(groups)
@@ -32,94 +22,63 @@ function computepayoffs(groups)
     return pay
 end
 
-function evolvegroups(groups, pay, coalitions)
+"""
+Each turn a player per node dies. It is replaced by the best performing player from its node or, with some probability, the adjacent nodes.
+"""
+function evolvegroups(groups, pay; ρ=0.)
     M, N = size(groups)
     next = copy(groups)
 
-    @threads for c in nonempty(coalitions)
-        C = length(c)
-        profit = pay[c, :]
-        soft = @. exp(profit / Σ′(N))
-        prob = vec(soft ./ sum(soft))
+    for m in 1:M
+        death = sample(1:N)
+        
+        l, r = adjacent(m, M)
+        gs = rand() < ρ ? [l, m, r] : [m]
 
-        i = sample(1:(N * C), pweights(prob)) # Weighted birth
-        j = sample(filter(!=(i), 1:(N * C))) # Random death excluded i
+        profit = vec(pay[gs, :])
 
-        next[coordloop(j, N, c)...] = next[coordloop(i, N, c)...]
+        πmin, πmax = extrema(profit)
+        soft = @. (profit - πmin) / (πmax - πmin)
+        prob = soft ./ sum(soft)
+
+        birth = sample(1:(N * length(gs)), pweights(prob))
+
+        row, col = getrowfromidx(birth, N)
+
+        next[m, death] = next[gs[row], col]
     end
 
     return next
 end
 
-function evolvegame(coalitions, pay)
-    newcoal = copy(coalitions)
-    C = length(coalitions)
 
-    profit = mean(pay, dims=2)
-    cprofit = [mean(profit[c]) for c in coalitions]
+function evolve(M, N; T=100)    
+    evolution = zeros(M, N, T)
+    evolution[:, :, 1] = rand(Σ(N), (M, N))
     
-    c = sample(1:C)
-
-    lower = c == 1 ? C : c - 1
-    upper = c == C ? 1 : c + 1
-
-    ctakeover =  cprofit[lower] > cprofit[upper] ? lower : upper # Join with lowest profitable market
-
-    newcoal[c]  = vcat(coalitions[c], coalitions[ctakeover])
-    newcoal[ctakeover] = []
-    
-    return newcoal
-
-end
-
-function evolve(M, N; T=100, swapgroup=0.0)    
-    evolution = zeros(Int64, M, N, T)
-    evolution[:, :, 1] = rand(Σ, (M, N))
-        
-    coalitions = [[i] for i in 1:M]
-
-    allcoalitions = []
-
     for t in 2:T
-        pay = computepayoffs(evolution[:, :, t - 1])
-        next = evolvegroups(evolution[:, :, t - 1], pay, coalitions)
-
-        if length(nonempty(coalitions)) > 1 && rand() < swapgroup
-            coalitions = evolvegame(coalitions, pay)
-            push!(allcoalitions, (t, nonempty(coalitions)))
-        end
-
+        current = @view evolution[:, :, t - 1]
+        pay = computepayoffs(current)
+        next = evolvegroups(current, pay)
         evolution[:, :, t] = next
     end
 
-    return evolution, allcoalitions
+    return evolution
 
 end
 
 
-function main()
-    Ns = range(3, 25, step=1)
-    ρs = range(0, 1, length=100)
-    convergence = globalstability(
-        Ns; ρs=ρs,
-        iter=500, T=100, M=40, 
-        filename="small_convergence_restr")
+M, N = 10, 20
+T = 100
+evolutions = evolve(M, N; T=T)
 
+print("Cournot equilibrium $(q̄(N))")
 
-    # localstability([5, 20], 100; iter=20)
-    globaldynamics([4, 20], [5, 20], 200)
+plotpayoffs(
+    evolution, computepayoffs,
+    "Π, M = $M, N = $N"
+)
 
+group = reshape(evolutions[1, :, :], (N, T))
 
-    Ns = range(3, 102, step=1)
-    ρs = range(0, 1, length=100)
-    convergence = globalstability(
-        Ns; ρs=ρs,
-        iter=300, T=100, M=5, 
-        filename="small_convergence_low")
-
-
-    convergence = globalstability(
-    Ns; ρs=ρs,
-        iter=300, T=100, M=40,
-        filename="small_convergence_high")
-end
+plotgroupquantities(group, "Q, N = $N")
