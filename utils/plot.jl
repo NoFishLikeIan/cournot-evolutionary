@@ -19,11 +19,6 @@ function plotpayoffs(evolutions, computepayoffs, title; filename="payoff_heat")
     
 end
 
-function plotquantities(evolutions, title; filename="q_heat")
-    M, N, T = size(evolutions)
-
-end
-
 function plotgroupquantities(
     group, title; 
     filename="q_group_heat")
@@ -43,22 +38,46 @@ function plotgroupquantities(
     savefig("plots/$filename.png")
 end
 
-function plotgroupprices(groups, p, title; filename="p_group")
-    N, T, I = size(groups)
-    
-    prices = zeros(Float64, I, T)
+function plotprices(evolutions, title; filename="p_group")
+    M, N, T = size(evolutions)
+    prices = zeros(Float64, M, T)
 
-    plot(
-        title=title, xaxis="t", yaxis="p(Q)", c="gray", alpha=0.5
-    )
+    plot(xaxis="t", yaxis="p(Q)", dpi=200, title=title)
 
-    for i in 1:I
-        price = [p(sum(Q), N) for Q in eachcol(groups[:, :, i])]
-        plot!(1:T, price, c="gray", alpha=0.5, label=false)
-        prices[i, :] = price
+    for m in 1:M
+        pricegroup = map(p, eachcol(evolutions[m, :, :]))
+        plot!(1:T, pricegroup, c="gray", alpha=0.5, label=false)
+        prices[m, :] = pricegroup
     end
 
-    plot!(1:T, mean(prices, dims=1)', c="red", label="mean(p(Q))", dpi=200)
+    meanp = vec(mean(prices, dims=1))
+
+    plot!(1:T, meanp, c="red", label="q̄")
+
+    hline!([p̄(N)], c=:black, linestyle=:dash, label="$(p̄(N)) Equil.")
 
     savefig("plots/$filename.png")
+end
+
+
+function plotquantities(evolutions, title; filename="q_group")
+    M, N, T = size(evolutions)
+    quantities = zeros(Float64, M, T)
+
+    plot(xaxis="t", yaxis="q", dpi=200, title=title)
+
+    for m in 1:M
+        groupquantity = mean(evolutions[m, :, :], dims=1)
+        plot!(1:T, vec(groupquantity), c="gray", alpha=0.5, label=false)
+        quantities[m, :] = groupquantity
+    end
+
+    meanquantity = vec(mean(quantities, dims=1))
+
+    plot!(1:T, meanquantity, c="red", label="p̄(Q)")
+
+    hline!([q̄(N)], c=:black, linestyle=:dash, label="$(q̄(N)) Equil.")
+
+    savefig("plots/$filename.png")
+
 end

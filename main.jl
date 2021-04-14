@@ -52,14 +52,15 @@ function evolvegroups(groups, pay; ρ=0.)
 end
 
 
-function evolve(M, N; T=100)    
+function evolve(M, N; T=100, ρ=0.)    
     evolution = zeros(M, N, T)
-    evolution[:, :, 1] = rand(Σ(N), (M, N))
-    
+
+    evolution[:, :, 1] = sample(Σ(N), (M, N))
+
     for t in 2:T
         current = @view evolution[:, :, t - 1]
         pay = computepayoffs(current)
-        next = evolvegroups(current, pay)
+        next = evolvegroups(current, pay; ρ=ρ)
         evolution[:, :, t] = next
     end
 
@@ -69,16 +70,25 @@ end
 
 
 M, N = 10, 20
-T = 100
-evolutions = evolve(M, N; T=T)
+T = 200
 
-print("Cournot equilibrium $(q̄(N))")
+params = [(0., "low"), (0.5, "medium"), (1., "high")]
 
-plotpayoffs(
-    evolution, computepayoffs,
-    "Π, M = $M, N = $N"
-)
+print("Theoretical cournot equilibria: q̄ = $(q̄(N)) p̄ = $(p̄(N))\n")
 
-group = reshape(evolutions[1, :, :], (N, T))
+for (ρ, path) in params
+    
+    print("Simulating with ρ=$ρ≭")
+    evolutions = evolve(M, N; T=T, ρ=ρ)
+    
+    # Local
+    group = reshape(evolutions[1, :, :], (N, T))
+    plotgroupquantities(
+        group, "Q, N = $N";
+        filename="$path/local_quantity.png")
 
-plotgroupquantities(group, "Q, N = $N")
+    # Global
+    plotprices(evolutions, "Average price per group";filename="$path/meanprice.png")
+
+    plotquantities(evolutions, "Average quantity per group"; filename="$path/meanquantity.png")
+end
