@@ -54,7 +54,9 @@ function plotprices(evolutions, title; filename="p_group")
 
     plot!(1:T, meanp, c="red", label="q̄")
 
-    hline!([p̄(N)], c=:black, linestyle=:dash, label="$(p̄(N)) Equil.")
+
+    eqlabel = "$(@sprintf("%.2f", p̄(N))) Equil."
+    hline!([p̄(N)], c=:black, linestyle=:dash, label=eqlabel)
 
     savefig("plots/$filename.png")
 end
@@ -76,7 +78,9 @@ function plotquantities(evolutions, title; filename="q_group")
 
     plot!(1:T, meanquantity, c="red", label="p̄(Q)")
 
-    hline!([q̄(N)], c=:black, linestyle=:dash, label="$(q̄(N)) Equil.")
+
+    eqlabel = "$(@sprintf("%.2f", q̄(N))) Equil."
+    hline!([q̄(N)], c=:black, linestyle=:dash, label=eqlabel)
 
     savefig("plots/$filename.png")
 
