@@ -1,8 +1,8 @@
 δc = 1
 δb = 1
-δa = 20
+δa = 200
 
-p(Q) = δa - δb * sum(Q) # Demand
+p(Q) = max(δa - δb * sum(Q), 0.) # Demand
 c(q) = δc * q           # Costs
 
 """
@@ -16,14 +16,17 @@ end
 # -- Equilibrium
 
 q̄(N) = (δa - δc) / (δb * (N + 1))
+p̄(N) = p(repeat([q̄(N)], N))
 
 """
 Define the strategy set.
 Guarantee that q̄ is in it.
 """
-function Σ(N; spacesize=10)
+function Σ(N, spacesize)
     equilibrium = q̄(N)
-    step = 2 * equilibrium / spacesize
+    leftsize = spacesize ÷ 2
+    step = equilibrium / leftsize
     
-    return range(0, step * spacesize; step=step) |> collect
+    return range(0, step * spacesize - step; step=step) |> collect
 end
+Σ(N) = Σ(N, N)
