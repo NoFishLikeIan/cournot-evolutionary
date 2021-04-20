@@ -46,7 +46,7 @@ function plotprices(evolutions, title; filename="p_group")
 
     for m in 1:M
         pricegroup = map(p, eachcol(evolutions[m, :, :]))
-        plot!(1:T, pricegroup, c="gray", alpha=0.5, label=false)
+        plot!(1:T, pricegroup, c="gray", alpha=0.1, label=false)
         prices[m, :] = pricegroup
     end
 
@@ -70,7 +70,7 @@ function plotquantities(evolutions, title; filename="q_group")
 
     for m in 1:M
         groupquantity = mean(evolutions[m, :, :], dims=1)
-        plot!(1:T, vec(groupquantity), c="gray", alpha=0.5, label=false)
+        plot!(1:T, vec(groupquantity), c="gray", alpha=0.1, label=false)
         quantities[m, :] = groupquantity
     end
 

@@ -80,10 +80,15 @@ function evolve(M, N; T=100, ρ=0., seed=0.2)
 end
 
 
-M, N = 20, 10
-T = 100
+M, N = 100, 10
+T = 200
 
-params = [(0., "low"), (0.5, "medium"), (1., "high")]
+params = [
+    (0., "low"),
+    (0.5, "medium"),
+    (1., "high")
+]
+
 
 optq =  @sprintf("%.2f", q̄(N))
 optp = @sprintf("%.2f", p̄(N))
@@ -93,7 +98,7 @@ print("Theoretical cournot equilibria: q̄ = $optq p̄ = $optp\n")
 for (ρ, path) in params
 
     print("Simulating with ρ=$ρ\n")
-    evolutions = evolve(M, N; T=T, ρ=ρ, seed=0.5)
+    evolutions = evolve(M, N; T=T, ρ=ρ, seed=0.9)
     
     # Local
     group = reshape(evolutions[1, :, :], (N, T))
@@ -102,7 +107,7 @@ for (ρ, path) in params
         filename="$path/local_quantity.png")
 
     # Global
-    plotprices(evolutions, "Average price per group; ρ=$(ρ)";filename="$path/meanprice.png")
+    plotprices(evolutions, "Average price per group; ρ = $(ρ)";filename="$path/meanprice.png")
 
     plotquantities(evolutions, "Average quantity per group; ρ=$(ρ)"; filename="$path/meanquantity.png")
 end

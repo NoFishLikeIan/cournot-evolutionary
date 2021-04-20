@@ -4,18 +4,14 @@
 
 
 # Demand
-p(Q) = δa - δb * sum(Q)
+p(Q) = max(δa - δb * sum(Q), 1.)
 p(q, N) = δa - δb * (q * N)
 
 """
 Profit function
 """
-function π(q, p)
-    q * (p - δc)
-end
-function Π(Q) 
-    π.(Q, p(Q))
-end
+function π(q, p) q * (p - δc) end
+function Π(Q) π.(Q, p(Q)) end
 
 # -- Equilibrium
 q̄(N) = (δa - δc) / (δb * (N + 1))
