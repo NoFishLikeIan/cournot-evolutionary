@@ -55,13 +55,15 @@ In order to better model and understand the emergence of such instability I will
 
 \section{Theoretical formulation}
 
-As in \citein{Akdeniz2020}, the game is played within groups (hereafter, local markets). Firms compete locally à la Cournot. Each turn there is a probability of a global event where two markets merge (i.e. they form one larger local market). This mechanisms is different from that of group reproduction in the baseline framework (\cite{Akdeniz2020}) because it represents a more realistic assumption in the case of firms competing and it better encodes the tradeoffs between tacit collusion and competition.
+As in \citein{Akdeniz2020}, the game is played within groups (hereafter, local markets). Firms compete locally à la Cournot. Each period, with some probability, a global event occurs. During a global event, firms of neighboring nodes participate in the game. % FIXME: This is not clearly state
+
+This mechanisms is different from that of group reproduction in the baseline framework (\cite{Akdeniz2020}) because it represents a more realistic assumption in the case of firms competing and itj better encodes the tradeoffs between tacit collusion and competition.
 
 \subsection{Notation}
 
 Any variable $x^{(i)}_t$ is indexed such that the superscript refers to the individual and the subscript to time.
 
-\subsection{Local markets}
+\subsection{Local competition}
 
 Local markets are composed by $N$ firms, indexed by $i$, that can choose a production quantity $q^{(i)} \in \Sigma \subset \Rat_+$. Firms face linear demand,
 
@@ -69,71 +71,70 @@ Local markets are composed by $N$ firms, indexed by $i$, that can choose a produ
     p(Q) = p\left(q^{(1)}, q^{(2)},  \ldots, q^{(N)} \right) = a - b \cdot \sum^{N}_{i=1} q^{(i)}
 \end{equation}
 
-where $Q$ is the vector of quantities and $a$ and $b$ are chosen for normalization purposes. The normalization is introduced to guarantee that the ``standard'' Cournot equilibrium is in the interior of $\Sigma$. Furthermore, firms face no fixed nor marginal costs. All of these assumptions can be easily relaxed to allow for non-linear demand, entry costs, and marginal costs. The symmetric Nash equilibrium of the game is (Appendix \ref{A:cournot}),
-
-\begin{equation} \label{equilib}
-    \bar{q}= \frac{a}{b \cdot (N+1)}
-\end{equation}
-
-The model evolves in discrete time $t \in \set{0, 1, \ldots T}$ and firms are assumed to enter the market playing a random draw from the strategy set,  $q^{(i)}_0 \sim U(\Sigma)$. In every period each company realizes a payoff, $\Pi^{(i)}_t = p(Q_t) \cdot q^{(i)}_t$. I assume that firms reproduce in a birth-death process. That is, each turn, with a probability proportional to its payoffs, a firm is picked to reproduce and, with uniform probability, a firm is picked to die. To account for negative fitness (i.e. negative profits), the probability weights assigned to each firm are a softmax mapping of the profits. In particular, the probability of a strategy, say $\sigma \in \Sigma$ played by $n$ firms, being picked for reproduction is,
+where $Q$ is the vector of quantities, and linear marginal costs,
 
 \begin{equation}
-    \frac{n \cdot \exp(P(Q_t) \cdot \sigma)}{\sum_{i} \exp(P(Q_t) \cdot q^{(i)})}.
+    c(q) = c \cdot q
 \end{equation}
 
+All of these assumptions can be easily relaxed to allow for non-linear demand, entry costs, and marginal costs. The symmetric Nash equilibrium of the game is (Appendix \ref{A:cournot}),
+
+\begin{equation} \label{equilib}
+    \bar{q}= \frac{a - c}{b \cdot (N+1)}
+\end{equation}
+
+The model evolves in discrete time $t \in \set{0, 1, \ldots T}$. At $t = 0$, a fixed proportion of firms plays the Cournot equilibrium strategy $\bar{q}$ and the remaining play a strategy sampled from the strategy set, $q^{(i)}_0 \sim U(\Sigma)$. In every period each company realizes a payoff, $\Pi^{(i)}_t = p(Q_t) \cdot q^{(i)}_t - c(q^{(i)})$. I assume that firms reproduce in a birth-death process. That is, each turn, with a probability proportional to its payoffs, a firm is picked to reproduce and, with uniform probability, a firm is picked to die. In particular, the probability of a firm $j$ being picked for reproduction is, % FIXME: Better scaling
+
+\begin{equation}
+    \frac{\Pi^{(j)}}{\sum^n_{i = 1} \Pi^{(i)}}.
+\end{equation}
 
 
 This modelling choice is justified in the context of oligopolies where firms copy other firms' production quantities in case the competitor is experiencing better profits. This arises for example in the airline industry, where capacity (number of flights) has to be planned \textit{ex-ante} to comply with regulations. Furthermore, these are markets with high barriers to entry (fixed $N$), long-term investment commitments (randomness in the birth-death process), and common tacit collusion.
 
-\subsection{Global market}
+\subsection{Global competition}
 
-In the model, there are $M$ local markets and each local market is linked to two other neighboring markets, thus forming a cycle (as in \cite{Akdeniz2020}). With arrival rate $\rho$, a market is chosen at random, with probability $1 / M$, and is merged with its best performing neighbor. This mechanisms is illustrated in Figure \ref{fig:diagram}.
+In the model, there are $M$ local markets and each local market is linked to two other neighboring markets, thus forming a cycle (as in \cite{Akdeniz2020}). Each turn, with probability $\rho$, a local market is involved in a global event. In this case, firms of neighboring markets are involved in the competition for birth. Hence the probability of a firm $j$ from a market $m$ being selected for reproduction is,
 
-This choice arises assuming that highly profitable local markets will be invaded by neighboring firms. For illustration purposes, consider again the airline industry example. Routes were airline are colluding, generate higher profits and, as a consequence, are more likely to be invaded by neighboring airlines. On the other hand, regardless of how high the profits are, non-neighboring airlines face high barriers to enter the market. In this way tacit collusion, on the one hand, pushes up payoffs and, on the other hand, it increases the likelihood of a neighboring entry.
+\begin{equation}
+    \frac{\Pi^{(j)}}{\sum_{i \in (m-1) \cup m \cup (m+1)} \Pi^{(i)}}
+\end{equation}
 
-
-
-\begin{center}
-    \begin{figure}[H]
-        \center
-        \includegraphics[width=0.8\textwidth]{../plots/step_group.png}
-        \caption{Diagram illustrating the takeover in the global market}
-        \label{fig:diagram}
-    \end{figure}
-\end{center}
-
+This choice introduces a tradeoff in firms' strategies. Playing a quantity above Cournot increases the firm's payoffs relative to other firms, hence increasing its reproduction probability, but it also reduces the overall payoff of the local market, thereby reducing the reproduction probability in case of a global event.
 
 \section{Simulation}
 
 To reproduce the simulation see Appendix \ref{A:code}.
 
-In the simulations I set $\Sigma = \set{1, 2, \ldots, 10}$, $a = (N + 1) \cdot 5$, and $b = 1$, such that equation (\ref{equilib}) yields,
+In the simulations I set $a = 200$, $c = 5$, and $b = 1$, such that equation (\ref{equilib}) yields,
 
 \begin{equation}
-    \bar{q} = 5
+    \bar{q}(N) = \frac{195}{N+1}
 \end{equation}
+
+Furthermore, $N \cdot 0.4$ firms start off playing the equilibrium quantity $\bar{q}(N)$ and $N \cdot 0.6$ play a random quantity.
 
 \subsection{Local market}
 
-First we can focus on a simulation of a local market, without group effects (i.e. no global markets). In particular here we look at the evolution of quantities and prices, first with a concentrated market ($N = 5$) and then with a competitive market ($N = 20$). The values of $N$ are set to these values heuristically based on the simulation results.
+First we can focus on a simulation of a local market, without group effects (i.e. no global competition). In particular here we look at the evolution of quantities and prices, first with a concentrated market ($N = 5$) and then with a competitive market ($N = 20$). The values of $N$ are set to these values heuristically based on the simulation results.
 
-Figure \ref{fig:small_local} shows a quantity heat map for one of the runs, with $T = 200$, in the case of a concentrated market. Each row represents a firm in the market and each column a time step. Darker colors are associated with smaller quantities. As expected, tacit collusion occurs very quickly as all firms synchronize to a low quantity.
+Figure \ref{fig:small_local} shows a quantity heat map for one of the runs, with $T = 200$, in the case of a concentrated market. Each row represents a firm in the market and each column a time step. Darker colors are associated with smaller quantities. As expected, quantities converge very rapidly to the Cournot quantity $\bar{q}(5) \approx 81.67$.
 
 \begin{center}
     \begin{figure}[H]
         \center
-        \includegraphics[width=0.8\textwidth]{../plots/local/q_group_heat_5.png}
+        \includegraphics[width=0.8\textwidth]{../plots/small/low/localquantity.png}
         \caption{Quantity evolution in a concentrated market}
         \label{fig:small_local}
     \end{figure}
 \end{center}
 
-Figure \ref{fig:price_small_local} displays the price evolution $p(Q_t)$ of $150$ simulations with concentrated markets. All simulations display tacit collusion but also high path dependence of the equilibrium price. This is expected as the strategy set is restricted to the initial sample of strategies $Q_0 \sim U(\Sigma)$, hence if enough firms start off producing a quantity above $\bar{q}$ which yields $p(Q_0) \approx 0$, firms who produce the highest quantity have greater payoffs and hence the price will be driven further down.
+Figure \ref{fig:price_small_local} displays the price evolution $p(Q_t)$ for $100$ periods of $20$ local markets of size $5$. Most markets converge % FIXME: Why is the equil. quantity different?!
 
 \begin{center}
     \begin{figure}[H]
         \center
-        \includegraphics[width=0.8\textwidth]{../plots/local/p_group_5.png}
+        \includegraphics[width=0.8\textwidth]{../plots/small/low/meanprice.png}
         \caption{Price evolution in a concentrated market}
         \label{fig:price_small_local}
     \end{figure}
@@ -144,7 +145,7 @@ If we turn our attention to a highly competitive markets and we repeat the exerc
 \begin{center}
     \begin{figure}[H]
         \center
-        \includegraphics[width=0.8\textwidth]{../plots/local/q_group_heat_20.png}
+        \includegraphics[width=0.8\textwidth]{../plots/big/low/localquantity.png}
         \caption{Quantity evolution in a competitive market}
         \label{fig:large_local}
     \end{figure}
@@ -155,7 +156,7 @@ The lack of collusion can be seen more clearly in the 150 simulations run of pri
 \begin{center}
     \begin{figure}[H]
         \center
-        \includegraphics[width=0.8\textwidth]{../plots/local/p_group_20.png}
+        \includegraphics[width=0.8\textwidth]{../plots/big/low/meanprice.png}
         \caption{Price evolution in a competitive market}
         \label{fig:price_large_local}
     \end{figure}
@@ -167,43 +168,26 @@ In order to study the effect of groups on the equilibria of the game we first lo
 
 \begin{figure}[H]
     \center
-    \includegraphics[width=0.8\textwidth]{../plots/group/q_group_4-5.png}
+    \includegraphics[width=0.8\textwidth]{../plots/small/high/localquantity.png}
     \caption{Average quantities with $4$ markets of size $5$}
     \label{fig:small_avg}
 \end{figure}
 
-The same dynamics can be seen by plotting the profits over this run (Figure \ref{fig:small_avg_profit}).
 
 \begin{figure}[H]
     \center
-    \includegraphics[width=0.8\textwidth]{../plots/group/pi_group_4-5.png}
+    \includegraphics[width=0.8\textwidth]{../plots/small/high/meanprice.png}
     \caption{Profits with $4$ markets of size $5$}
     \label{fig:small_avg_profit}
 \end{figure}
 
-Given this result it is clear that group effects have implications for the sustainability of tacit collusion. In particular, the expected local market size (Equation \ref{market_size}, derived in Appendix \ref{A:exp_size}) at each time step, $\E[N_t]$, depends on both the takeover frequency and the number of groups $M$,
-
-\begin{equation} \label{market_size}
-    \E[N_t] = (1 - \rho)^t \cdot N + \rho \cdot \sum^{t-1}_{i = 0} (1 - \rho)^{i} \cdot \frac{N \cdot M}{M - (t - i)}.
-\end{equation}
-
-This function, plotted for $M = 10$ and $N = 5$ can be seen in Figure \ref{fig:size}.
 
 
 \begin{figure}[H]
     \center
-    \includegraphics[width=0.95\textwidth]{../plots/expected.png}
+    \includegraphics[width=0.95\textwidth]{../plots/big/high/meanprice.png}
     \caption{Expected market size for different $\rho$s.}
     \label{fig:size}
-\end{figure}
-
-Despite having derived $\E[N_t]$, the relationship between $\rho$ and tacit collusion is more subtle and depends on the whole distribution of $N_t$ and not only its expected value. To study this I employ a Monte-carlo simulation. Given $M = 40$, for each $N \in \set{3, 4, \ldots, 40}$ and $\rho \in \set{0, \frac{1}{100},\frac{2}{100}, \ldots, 1}$, I compute $200$ simulations of length $T = 200$ of the model. I then look at the variance of the quantity in each group at the end of the 200 periods. If the variance is 0 we have evidence of tacit collusion since each firm is playing the same quantity. Finally, I compute the average variance across groups and simulations. The result of this exercise is presented in Figure \ref{fig:frontier} where $N$ is plotted on the $x$-axis, $\rho$ on the $y$-axis, and the intensity of the color is the average variance of the strategy. Hence dark colors represent common tacit collusion. The simulation clearly shows that low frequencies of mergers renders tacit collusion sustainable with larger groups.
-
-\begin{figure}[H]
-    \center
-    \includegraphics[width=0.95\textwidth]{../plots/global/small_convergence_restr.png}
-    \caption{Collusion frontier of $N \in \set{3, 4, \ldots, 40}$ and $\rho \in [0, 1]$ }
-    \label{fig:frontier}
 \end{figure}
 
 \section{Conclusions}
