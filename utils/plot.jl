@@ -19,26 +19,32 @@ function plotpayoffs(evolutions, computepayoffs, title; filename="payoff_heat")
     
 end
 
-function plotgroupquantities(
-    group, title; 
-    filename="q_group_heat")
+function plotgroupquantities(group, title; path=["p_group.png"])
     
     N, T = size(group)
-    equil = q̄(N)
-    u = maximum(Σ(N))
 
-    gradient = cgrad(:balance, [0., equil / u, 1.])
+    equil = q̄(N)
+    
+    gradient = cgrad(:coolwarm, [0, equil, 60])
 
     heatmap(
-        group,
-        c=gradient, clims=(0., u),
-        xaxis="t",
-        dpi=200, title=title)
+        1:T, 1:N, group,
+        c=gradient,
+        yticks=1:N, xlabel="T",
+        title="Strategy played, q̄ = $(@sprintf("%.2f", equil))"
+    )
 
-    savefig("plots/$filename.png")
+    dir = copy(path)
+    filename = pop!(dir)
+
+    dir = joinpath(dir...)
+
+    if !isdir(dir) mkpath(dir) end
+
+    savefig(joinpath(dir, filename))
 end
 
-function plotprices(evolutions, title; filename="p_group")
+function plotprices(evolutions, title; path=["p_group.png"])
     M, N, T = size(evolutions)
     prices = zeros(Float64, M, T)
 
@@ -46,7 +52,7 @@ function plotprices(evolutions, title; filename="p_group")
 
     for m in 1:M
         pricegroup = map(p, eachcol(evolutions[m, :, :]))
-        plot!(1:T, pricegroup, c="gray", alpha=0.1, label=false)
+        plot!(1:T, pricegroup, c="gray", alpha=0.5, label=false)
         prices[m, :] = pricegroup
     end
 
@@ -58,11 +64,18 @@ function plotprices(evolutions, title; filename="p_group")
     eqlabel = "$(@sprintf("%.2f", p̄(N))) Equil."
     hline!([p̄(N)], c=:black, linestyle=:dash, label=eqlabel)
 
-    savefig("plots/$filename.png")
+    dir = copy(path)
+    filename = pop!(dir)
+
+    dir = joinpath(dir...)
+
+    if !isdir(dir) mkpath(dir) end
+
+    savefig(joinpath(dir, filename))
 end
 
-
-function plotquantities(evolutions, title; filename="q_group")
+    
+function plotquantities(evolutions, title; path=["p_group.png"])
     M, N, T = size(evolutions)
     quantities = zeros(Float64, M, T)
 
@@ -82,6 +95,13 @@ function plotquantities(evolutions, title; filename="q_group")
     eqlabel = "$(@sprintf("%.2f", q̄(N))) Equil."
     hline!([q̄(N)], c=:black, linestyle=:dash, label=eqlabel)
 
-    savefig("plots/$filename.png")
+    dir = copy(path)
+    filename = pop!(dir)
+
+    dir = joinpath(dir...)
+
+    if !isdir(dir) mkpath(dir) end
+
+    savefig(joinpath(dir, filename))
 
 end

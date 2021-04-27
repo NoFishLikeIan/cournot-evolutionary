@@ -39,9 +39,7 @@ function evolvegroups(groups, pay; ρ=0.)
 
         profit = vec(pay[gs, :])
 
-        πmin, πmax = extrema(profit)
-        soft = @. (profit - πmin) / (πmax - πmin)
-        prob = soft ./ sum(soft)
+        prob = profit ./ sum(profit)
 
         birth = sample(1:(N * Ngroups), pweights(prob))
 
@@ -80,34 +78,46 @@ function evolve(M, N; T=100, ρ=0., seed=0.2)
 end
 
 
-M, N = 100, 10
-T = 200
+M = 20
+T = 150
 
 params = [
-    (0., "low"),
+    (0.0, "low"),
     (0.5, "medium"),
-    (1., "high")
+    (1.0, "high")
 ]
 
+sizes = [(5, "small"), (20, "big")]
 
-optq =  @sprintf("%.2f", q̄(N))
-optp = @sprintf("%.2f", p̄(N))
+Plots.scalefontsizes(0.75)
 
-print("Theoretical cournot equilibria: q̄ = $optq p̄ = $optp\n")
+for (N, pathsize) in sizes
+    optq, optp =  @sprintf("%.2f", q̄(N)), @sprintf("%.2f", p̄(N))
 
-for (ρ, path) in params
+    print("Theoretical cournot equilibria: N = $N, q̄ = $optq p̄ = $optp\n")
 
-    print("Simulating with ρ=$ρ\n")
-    evolutions = evolve(M, N; T=T, ρ=ρ, seed=0.9)
-    
-    # Local
-    group = reshape(evolutions[1, :, :], (N, T))
-    plotgroupquantities(
-        group, "q̄ = $optq, N = $N";
-        filename="$path/local_quantity.png")
+    for (ρ, pathparam) in params
 
-    # Global
-    plotprices(evolutions, "Average price per group; ρ = $(ρ)";filename="$path/meanprice.png")
+        evolutions = evolve(M, N; T=T, ρ=ρ, seed=0.4)
+        
+        # Local
+        group = evolutions[1, :, :]
+        plotgroupquantities(
+            group, "q̄ = $optq, N = $N";
+            path=["plots", pathsize, pathparam, "localquantity.png"]
+        )
 
-    plotquantities(evolutions, "Average quantity per group; ρ=$(ρ)"; filename="$path/meanquantity.png")
+        # Global
+        plotprices(
+            evolutions, "Average price per group; ρ = $(ρ)";
+            path=["plots", pathsize, pathparam, "meanprice.png"]
+        )
+
+        plotquantities(
+            evolutions, "Average quantity per group; ρ=$(ρ)";
+            path=["plots", pathsize, pathparam, "meanquantity.png"]
+        )
+    end
 end
+
+Plots.resetfontsizes()
