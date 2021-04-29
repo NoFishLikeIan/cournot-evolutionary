@@ -78,6 +78,32 @@ function evolve(M, N; T=100, ρ=0., seed=0.2)
 end
 
 
+function spacesimulation(Ns, ρs, M, T; verbose=false)
+
+    Nd, ρd = length(Ns), length(ρs)
+
+    P = zeros(Nd, ρd)
+
+    @threads for i = 1:Nd
+        N = Ns[i]
+        verbose && print("N = $N / $(Ns[end]);\n")
+
+        for (j, ρ) in enumerate(ρs)
+            verbose && print("ρ = $(@sprintf("%.2f", ρ)) / $(ρs[end])\r")
+
+            evolutions = evolve(M, N; T=T, ρ=ρ, seed=0.4)
+
+            last = evolutions[:, :, end]
+
+            P[i, j] = mean(p.(eachrow(last))) # Mean price last round
+        end
+
+        verbose && print("\n")
+    end
+
+    return P
+end
+
 M = 20
 T = 150
 
@@ -116,8 +142,28 @@ for (N, pathsize) in sizes
         plotquantities(
             evolutions, "Average quantity per group; ρ=$(ρ)";
             path=["plots", pathsize, pathparam, "meanquantity.png"]
-        )
+)
     end
+end
+
+
+for (N, pathsize) in sizes
+    Ns = repeat([N], 150)
+    ρs = range(0., 1., length=101)
+
+    P = spacesimulation(Ns, ρs, 20, 150; verbose=false)
+
+    runs = eachcol(P)
+
+    plot(
+        ρs, mean.(runs), ribbon=std.(runs), 
+        c=:red, label=false,
+        xlabel="ρ", ylabel="price",
+        title="Mean price for 150 simulations of N = $N",
+        dpi=200, ylim=(0, 150)
+    )
+
+    savefig("plots/$pathsize/mean_price_sim.png")
 end
 
 Plots.resetfontsizes()
