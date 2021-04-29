@@ -58,7 +58,7 @@ function plotprices(evolutions, title; path=["p_group.png"])
 
     meanp = vec(mean(prices, dims=1))
 
-    plot!(1:T, meanp, c="red", label="q̄")
+    plot!(1:T, meanp, c="red", label="p(Q)")
 
 
     eqlabel = "$(@sprintf("%.2f", p̄(N))) Equil."
