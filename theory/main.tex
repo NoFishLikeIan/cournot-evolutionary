@@ -5,7 +5,7 @@
     \usepackage{amsmath}
     \usepackage{amssymb}
     \usepackage{graphicx} 
-    \usepackage{subfigure}
+    \usepackage{subcaption}
     \usepackage{mathtools}
     \usepackage{float}
     \usepackage{fancyvrb} % for "\Verb" macro
@@ -42,6 +42,8 @@
 
 \section{Introduction}
 
+% FIXME: New interpretation in the introduction
+
 
 In this short paper I propose to study the dynamics of equilibrium formation in Cournot competition through an evolutionary lens. The aim is to study the formation and sustainability of tacit collusion among firm. I develop a model with local markets competing à la Cournot. Firms evolve in a birth-death process. This can be thought of as firms copying a production technology from the best performing competitor in their own local market, after a certain amount of periods. Here the standard result applies: tacit collusion is stable only for a small number of firms (\cite{Lampart2012}). The model is then extended to encompass group effects, based on the framework by \citein{Akdeniz2020}. In particular, I show how tacit collusion can be sustained for larger oligopolies, as long as competition at a group level (i.e. between local markets) emerges slowly.
 
@@ -51,13 +53,11 @@ In 1838, Antoine Augustin Cournot introduced his famous model of competition ove
 
 In proposing the model, Cournot does not address the way in which firms form their strategies. Modern economics relies on rational expectations to justify the symmetric equilibrium solution. More contemporary approaches have derived the model dynamics under limited knowledge (\cite{Bischi2015}) or naive expectations (\cite{Cnovas2008}). All of these approaches lead to equilibria that are unstable as the number of firms increases (Cournot–Theocharis problem).
 
-In order to better model and understand the emergence of such instability I will rely on an evolutionary framework developed by \citein{Akdeniz2020}. The authors analyse the role of group selection in the emergence of cooperation. As in previous models, defection gives a fitness advantage at an individual level (within groups) but a disadvantage at a group level (across groups). Furthermore, groups do not compete globally but only with neighboring groups. The authors show how local competition among groups has strong implications for the emergence of cooperation.
+To better model and understand the emergence of such instability I will rely on an evolutionary framework developed by \citein{Akdeniz2020}. The authors analyse the role of group selection in the emergence of cooperation. As in previous models, defection gives a fitness advantage at an individual level (within groups) but a disadvantage at a group level (across groups). Furthermore, groups do not compete globally but only with neighboring groups. The authors show how local competition among groups has strong implications for the emergence of cooperation.
 
 \section{Theoretical formulation}
 
-As in \citein{Akdeniz2020}, the game is played within groups (hereafter, local markets). Firms compete locally à la Cournot. Each period, with some probability, a global event occurs. During a global event, firms of neighboring nodes participate in the game. % FIXME: This is not clearly state
-
-This mechanisms is different from that of group reproduction in the baseline framework (\cite{Akdeniz2020}) because it represents a more realistic assumption in the case of firms competing and itj better encodes the tradeoffs between tacit collusion and competition.
+As in \citein{Akdeniz2020}, the game is played within groups (hereafter, local markets). Firms compete locally à la Cournot. Each period, with some probability, a global event occurs. During a global event, firms of neighboring nodes participate in the game and compete for reproduction with local firms. This mechanisms is different from that of group reproduction in the baseline framework (\cite{Akdeniz2020}) because it better encodes the tradeoff between colluding (facing global competition) and competing (getting an edge on local firms).
 
 \subsection{Notation}
 
@@ -83,12 +83,22 @@ All of these assumptions can be easily relaxed to allow for non-linear demand, e
     \bar{q}= \frac{a - c}{b \cdot (N+1)}
 \end{equation}
 
-The model evolves in discrete time $t \in \set{0, 1, \ldots T}$. At $t = 0$, a fixed proportion of firms plays the Cournot equilibrium strategy $\bar{q}$ and the remaining play a strategy sampled from the strategy set, $q^{(i)}_0 \sim U(\Sigma)$. In every period each company realizes a payoff, $\Pi^{(i)}_t = p(Q_t) \cdot q^{(i)}_t - c(q^{(i)})$. I assume that firms reproduce in a birth-death process. That is, each turn, with a probability proportional to its payoffs, a firm is picked to reproduce and, with uniform probability, a firm is picked to die. In particular, the probability of a firm $j$ being picked for reproduction is, % FIXME: Better scaling
+The model evolves in discrete time $t \in \set{0, 1, \ldots T}$. At $t = 0$, a fixed proportion of firms plays the Cournot equilibrium strategy $\bar{q}$ and the remaining play a strategy sampled from the strategy set, $q^{(i)}_0 \sim U(\Sigma)$. In every period each company realizes a payoff, $\Pi^{(i)}_t = p(Q_t) \cdot q^{(i)}_t - c(q^{(i)})$. I assume that firms reproduce in a birth-death process. That is, each turn, with a probability proportional to its payoffs, a firm is picked to reproduce and, with uniform probability, a firm is picked to die. In particular, the probability of a firm $j$ being picked for reproduction is,
 
 \begin{equation}
     \frac{\Pi^{(j)}}{\sum^n_{i = 1} \Pi^{(i)}}.
 \end{equation}
 
+In this setup there is ``evolutionary pressure'' towards higher quantities. To see this consider a setup with simply two firms. The best response of each player is the Cournot quantity, which also maximizes total payoffs. But playing a quantity above Cournot reduces the other player's payoffs faster than the firm's own payoff, which increases the probability of reproduction. The probability of reproduction of a player is plotted in Figure \ref{fig:relprob} for different quantities.
+
+\begin{center}
+    \begin{figure}[H]
+        \center
+        \includegraphics[width=0.8\textwidth]{../plots/theory/twoplayers.png}
+        \caption{Reproduction probability of player 1 with $N = 2$, $a = 200$, $c = 10$, $b = 1$}
+        \label{fig:relprob}
+    \end{figure}
+\end{center}
 
 This modelling choice is justified in the context of oligopolies where firms copy other firms' production quantities in case the competitor is experiencing better profits. This arises for example in the airline industry, where capacity (number of flights) has to be planned \textit{ex-ante} to comply with regulations. Furthermore, these are markets with high barriers to entry (fixed $N$), long-term investment commitments (randomness in the birth-death process), and common tacit collusion.
 
@@ -100,7 +110,7 @@ In the model, there are $M$ local markets and each local market is linked to two
     \frac{\Pi^{(j)}}{\sum_{i \in (m-1) \cup m \cup (m+1)} \Pi^{(i)}}
 \end{equation}
 
-This choice introduces a tradeoff in firms' strategies. Playing a quantity above Cournot increases the firm's payoffs relative to other firms, hence increasing its reproduction probability, but it also reduces the overall payoff of the local market, thereby reducing the reproduction probability in case of a global event.
+This choice introduces a tradeoff in firms' strategies. Playing a quantity above Cournot increases the firm's payoffs relative to other firms, hence increasing its reproduction probability, but it also reduces the overall payoff of the local market, thereby reducing the reproduction probability in case of a global event. Given this tradeoff we expect that, as the probability of a global event $\rho$ increases, lower quantities (around the Cournot quantity) will be sustained in more markets.
 
 \section{Simulation}
 
@@ -118,7 +128,7 @@ Furthermore, $N \cdot 0.4$ firms start off playing the equilibrium quantity $\ba
 
 First we can focus on a simulation of a local market, without group effects (i.e. no global competition). In particular here we look at the evolution of quantities and prices, first with a concentrated market ($N = 5$) and then with a competitive market ($N = 20$). The values of $N$ are set to these values heuristically based on the simulation results.
 
-Figure \ref{fig:small_local} shows a quantity heat map for one of the runs, with $T = 200$, in the case of a concentrated market. Each row represents a firm in the market and each column a time step. Darker colors are associated with smaller quantities. As expected, quantities converge very rapidly to the Cournot quantity $\bar{q}(5) \approx 81.67$.
+Figure \ref{fig:small_local} shows a quantity heat map for one of the runs, with $T = 200$, in the case of a concentrated market. Each row represents a firm in the market and each column a time step. Shades of blue (red) represent quantities below (above) Cournot and gray is the Cournot quantity. As expected, quantities converge very rapidly to the Cournot quantity $\bar{q}(5) \approx 81.67$.
 
 \begin{center}
     \begin{figure}[H]
@@ -129,7 +139,7 @@ Figure \ref{fig:small_local} shows a quantity heat map for one of the runs, with
     \end{figure}
 \end{center}
 
-Figure \ref{fig:price_small_local} displays the price evolution $p(Q_t)$ for $100$ periods of $20$ local markets of size $5$. Most markets converge % FIXME: Why is the equil. quantity different?!
+Figure \ref{fig:price_small_local} displays the price evolution $p(Q_t)$ for $100$ periods of $20$ local markets of size $5$. Most markets converge either to the Cournot quantity or above (i.e. display lower prices). This is expected due to the selection towards higher quantities and no outside pressure to collude.
 
 \begin{center}
     \begin{figure}[H]
@@ -140,7 +150,7 @@ Figure \ref{fig:price_small_local} displays the price evolution $p(Q_t)$ for $10
     \end{figure}
 \end{center}
 
-If we turn our attention to a highly competitive markets and we repeat the exercise, the dynamics change drastically. In particular, Figure \ref{fig:large_local} shows the evolution of strategies of a single run. Here firms fail to collude and prices tend towards the equilibrium.
+If we turn our attention to a more competitive markets ($N=20$) and we repeat the exercise, the dynamics change drastically. In particular, Figure \ref{fig:large_local} shows the evolution of strategies of a single run. In this case the market converges immediately to higher quantities due to the increasing competition.
 
 \begin{center}
     \begin{figure}[H]
@@ -164,30 +174,24 @@ The lack of collusion can be seen more clearly in the 150 simulations run of pri
 
 \subsection{Global markets}
 
-In order to study the effect of groups on the equilibria of the game we first look at a simple simulation run with, as before, $N = 5$ and $M = 4$. In Figure \ref{fig:small_avg}, two lines, representing the average quantity in each group, are plotted with the same color if in that period the local markets are merged. Already from a single run we can see how tacit collusion can be sustained in larger groups, if these arise from smaller prior groups which were in a tacit collusive equilibrium. In fact the previous simulation with $N = 20$ and no group effects does not sustain collusion but $M = 4$ and $N = 5$ does (note that $M\cdot N = 20$ is the long run size of the group as all groups will be merged).
-
-\begin{figure}[H]
-    \center
-    \includegraphics[width=0.8\textwidth]{../plots/small/high/localquantity.png}
-    \caption{Average quantities with $4$ markets of size $5$}
-    \label{fig:small_avg}
-\end{figure}
+To study the effect of groups on the equilibria of the game we first look at a simple simulation run with, as before, $N = 5$ and $M = 20$. In this case, $\rho = 1$, such that every period there is a global event in each group. In Figure \ref{fig:cert}, I plot the price evolution for $N = 5$ (\ref{fig:cert:small}) and $N = 20$ (\ref{fig:cert:big}). In both cases the effect of global competition on prices is evident, namely outside pressure induces tacit collusion by reducing the advantage of playing higher quantities.
 
 
 \begin{figure}[H]
-    \center
-    \includegraphics[width=0.8\textwidth]{../plots/small/high/meanprice.png}
-    \caption{Profits with $4$ markets of size $5$}
-    \label{fig:small_avg_profit}
-\end{figure}
-
-
-
-\begin{figure}[H]
-    \center
-    \includegraphics[width=0.95\textwidth]{../plots/big/high/meanprice.png}
-    \caption{Expected market size for different $\rho$s.}
-    \label{fig:size}
+    \begin{subfigure}{.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../plots/small/high/meanprice.png}
+        \caption{$N = 5$}
+        \label{fig:cert:small}
+    \end{subfigure}%
+    \begin{subfigure}{.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../plots/big/high/meanprice.png}
+        \caption{$N = 20$}
+        \label{fig:cert:big}
+    \end{subfigure}
+    \caption{Simulation with $\rho = 1$}
+    \label{fig:cert}
 \end{figure}
 
 \section{Conclusions}
