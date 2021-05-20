@@ -1,6 +1,7 @@
+using LaTeXStrings, Plots
+
 include("cournot.jl")
 
-using LaTeXStrings
 
 N = 5
 
@@ -66,15 +67,20 @@ cournot = q̄(N)
 equil = L"\overline{q} \approx %$(round(Int64, q̄(N)))"
 
 function probability(q₁, q₂)
-    payoffs = Π([q₁, q₂])
-    return payoffs[1] / sum(payoffs)
+
+    Π₁, Π₂ = Π([q₁, q₂])
+
+    prob = Π₁ / (Π₁ + Π₂)
+
+    return Π₁ ≥ 0 ? prob : 1 - prob
 end
 
 heatmap(
-    x, y, (q₁, q₂) -> probability(q₁, q₂), 
+    x, y, probability, 
     xlabel="q₁", ylabel="q₂",
     colorbar_title="Repr. prob. of 1",
-    dpi=200, c=:coolwarm
+    dpi=200, c=:coolwarm, aspect_ratio=1,
+    xlims=extrema(x), ylims=extrema(y)
 )
 
 
@@ -83,3 +89,20 @@ scatter!([cournot], [cournot], color=:black, label=false)
 annotate!(cournot + 5, cournot, text(equil, :black, :left, 10))
 
 savefig("plots/theory/twoplayers.png")
+
+
+totalpayoffs(q₁, q₂) = Π([q₁, q₂])[1] / sum(Π([cournot, cournot]))
+
+heatmap(
+    x, y, (q₁, q₂) -> totalpayoffs(q₁, q₂), 
+    xlabel="q₁", ylabel="q₂",
+    colorbar_title="Total payoffs rel. Cournot",
+dpi=200, c=:coolwarm
+)
+
+
+scatter!([cournot], [cournot], color=:black, label=false)
+
+annotate!(cournot + 5, cournot, text(equil, :black, :left, 10))
+
+savefig("plots/theory/twoplayerspi.png")
